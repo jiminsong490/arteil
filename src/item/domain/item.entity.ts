@@ -4,13 +4,14 @@ import {
   CreateDateColumn,
   DeleteDateColumn,
   Entity,
-  OneToMany,
+  ManyToOne,
   PrimaryGeneratedColumn,
+  RelationId,
   UpdateDateColumn,
 } from 'typeorm';
-import { Item } from '../../item/domain/item.entity';
+import { User } from '../../user/domain/user.entity';
 @Entity()
-export class User {
+export class Item {
   @PrimaryGeneratedColumn()
   id: number;
 
@@ -18,7 +19,7 @@ export class User {
   name: string;
 
   @Column()
-  money: number;
+  price: number;
 
   @CreateDateColumn({ type: 'timestamp' })
   createdAt: Date;
@@ -29,6 +30,10 @@ export class User {
   @DeleteDateColumn({ type: 'timestamp' })
   deletedAt?: Date | null;
 
-  @OneToMany(() => Item, (item) => item.user)
-  item: Item[];
+  @RelationId((self: Item) => self.user)
+  @Column()
+  itemId: number;
+
+  @ManyToOne(() => User, (user) => user.item)
+  user: User;
 }
