@@ -11,6 +11,7 @@
 
 ### 유저(판매자, 구매자 구분 없이) 등록
 HTTP Method: POST
+
 url: localhost:8080/api/v1/users
 ```json
 {
@@ -21,6 +22,7 @@ url: localhost:8080/api/v1/users
 
 ### 아이템 등록
 HTTP Method: POST
+
 url: http://localhost:3000/api/v1/items/:id
 pathvariable: id (등록 유저 id)
 ```json
@@ -31,12 +33,13 @@ pathvariable: id (등록 유저 id)
 ```
 ### 아이템 전체 검색
 HTTP Method: GET
+
 url: http://localhost:3000/api/v1/items
 
 ### 아이템 구매
 HTTP Method: POST
-url: http://localhost:3000/api/v1/items/purchases/:id
 
+url: http://localhost:3000/api/v1/items/purchases/:id
 pathvariable: id (구매 아이템 id)
 ```json
 {
