@@ -77,6 +77,8 @@ export class ItemService {
       buyer.money -= item.price;
       seller.money += item.price;
 
+      if(buyer.money < 0) throw new NotFoundException('돈이 부족합니다.');
+
       await this.UserRepository.save(buyer);
       await this.UserRepository.save(seller);
       await this.ItemRepository.softDelete(id);
@@ -90,8 +92,8 @@ export class ItemService {
     } catch (e) {
       await queryRunner.rollbackTransaction();
       return plainToInstance(ResponseWithoutDataDto, {
-        code: '200',
-        message: '이미 판매된 아이템입니다.',
+        code: '404',
+        message: e.response.message,
       });
     } finally {
       await queryRunner.release();
