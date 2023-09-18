@@ -1,6 +1,6 @@
 import { InjectRepository } from '@nestjs/typeorm';
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { Repository } from 'typeorm';
+import { DataSource, Repository } from 'typeorm';
 import { Item } from '../domain/item.entity';
 import {
   CreateItemRequest,
@@ -21,6 +21,7 @@ export class ItemService {
     private ItemRepository: Repository<Item>,
     @InjectRepository(User)
     private UserRepository: Repository<User>,
+    private readonly dataSource: DataSource,
   ) {}
 
   async findAll() {
@@ -53,30 +54,47 @@ export class ItemService {
   }
 
   async purchase(id: number, order: PurchaseItemRequest) {
-    const item = await this.ItemRepository.findOne({
-      where: { id: id },
-    });
-    const buyer = await this.UserRepository.findOne({
-      where: { id: order.userId },
-    });
+    const queryRunner = this.dataSource.createQueryRunner();
+    await queryRunner.connect();
 
-    if (!item) throw new NotFoundException('존재하지 않는 아이템입니다.');
-    else if (!buyer) throw new NotFoundException('존재하지 않는 유저입니다.');
+    await queryRunner.startTransaction();
 
-    const seller = await this.UserRepository.findOne({
-      where: { id: item.userId },
-    });
+    try {
+      const item = await this.ItemRepository.findOne({
+        where: { id: id },
+      });
+      const buyer = await this.UserRepository.findOne({
+        where: { id: order.userId },
+      });
 
-    buyer.money -= item.price;
-    seller.money += item.price;
+      if (!item) throw new NotFoundException('존재하지 않는 아이템입니다.');
+      else if (!buyer) throw new NotFoundException('존재하지 않는 유저입니다.');
 
-    await this.UserRepository.save(buyer);
-    await this.UserRepository.save(seller);
-    await this.ItemRepository.softDelete(id);
+      const seller = await this.UserRepository.findOne({
+        where: { id: item.userId },
+      });
 
-    return plainToInstance(ResponseWithoutDataDto, {
-      code: '200',
-      message: 'success',
-    });
+      buyer.money -= item.price;
+      seller.money += item.price;
+
+      await this.UserRepository.save(buyer);
+      await this.UserRepository.save(seller);
+      await this.ItemRepository.softDelete(id);
+
+      await queryRunner.commitTransaction();
+
+      return plainToInstance(ResponseWithoutDataDto, {
+        code: '200',
+        message: 'success',
+      });
+    } catch (e) {
+      await queryRunner.rollbackTransaction();
+      return plainToInstance(ResponseWithoutDataDto, {
+        code: '200',
+        message: '이미 판매된 아이템입니다.',
+      });
+    } finally {
+      await queryRunner.release();
+    }
   }
 }
