@@ -24,6 +24,7 @@ url: localhost:8080/api/v1/users
 HTTP Method: POST
 
 url: http://localhost:3000/api/v1/items/:id
+
 pathvariable: id (등록 유저 id)
 ```json
 {
@@ -40,6 +41,7 @@ url: http://localhost:3000/api/v1/items
 HTTP Method: POST
 
 url: http://localhost:3000/api/v1/items/purchases/:id
+
 pathvariable: id (구매 아이템 id)
 ```json
 {
