@@ -32,7 +32,7 @@ export class Item {
 
   @RelationId((self: Item) => self.user)
   @Column()
-  itemId: number;
+  userId: number;
 
   @ManyToOne(() => User, (user) => user.item)
   user: User;
