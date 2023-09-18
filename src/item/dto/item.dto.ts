@@ -18,4 +18,8 @@ class ItemInfoResponse {
   deletedAt?: Date | null;
 }
 
-export { CreateItemRequest, ItemInfoResponse };
+class PurchaseItemRequest {
+  userId: number;
+}
+
+export { CreateItemRequest, ItemInfoResponse, PurchaseItemRequest };
