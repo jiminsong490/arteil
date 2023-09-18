@@ -16,6 +16,17 @@ export class ItemService {
     private UserRepository: Repository<User>,
   ) {}
 
+  async findAll() {
+    const res = await this.ItemRepository.find();
+    const data = plainToInstance(ItemInfoResponse, res);
+
+    return plainToInstance(ResponseDto<ItemInfoResponse>, {
+      code: '200',
+      message: 'success',
+      data: data,
+    });
+  }
+
   async create(id: number, item: CreateItemRequest) {
     const user = await this.UserRepository.exist({
       where: { id: id },
